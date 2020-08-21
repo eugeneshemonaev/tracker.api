@@ -1,0 +1,6 @@
+export enum DiscountTypes {
+  STORE_COUPON = 'STORE_COUPON',
+  ALI_COUPON = 'ALI_COUPON',
+  SPEC_COUPON = 'SPEC_COUPON',
+  INSTANT_DISC = 'INSTANT_DISC'
+}
