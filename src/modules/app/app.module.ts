@@ -6,6 +6,7 @@ import { DiscountsModule } from '../discounts/discounts.module';
 import { LinksModule } from '../links/links.module';
 import { ProductsModule } from '../products/products.module';
 import { ShopsModule } from '../shops/shops.module';
+import { AliExpressModule } from '../aliexpress/aliexpress.module';
 
 @Module({
   imports: [
@@ -13,9 +14,9 @@ import { ShopsModule } from '../shops/shops.module';
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'matchup',
-      password: 'matchup',
-      database: 'matchup',
+      username: 'tracker',
+      password: 'tracker',
+      database: 'tracker',
       entities: ['dist/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
@@ -24,7 +25,8 @@ import { ShopsModule } from '../shops/shops.module';
     DiscountsModule,
     LinksModule,
     ProductsModule,
-    ShopsModule
+    ShopsModule,
+    AliExpressModule
   ],
 })
 export class AppModule {}

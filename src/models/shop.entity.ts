@@ -16,5 +16,8 @@ export class Shop {
   rating: number;
 
   @Column()
+  ratingCount: number;
+
+  @Column()
   followers: number;
 }
