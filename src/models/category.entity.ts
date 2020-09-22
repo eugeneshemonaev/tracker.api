@@ -18,5 +18,4 @@ export class Category {
   @ManyToOne(() => Category, category => category.parent, {})
   @JoinColumn({ name: "parent_id" })
   parent: Category;
-
 }

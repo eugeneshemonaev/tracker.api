@@ -8,6 +8,6 @@ export class AliexpressController {
 
   @Get()
   async findAll() {
-    await this.aliService.getStoreInfo(2294050);
+    await this.aliService.getItemInfo(32795437819);
   }
 }

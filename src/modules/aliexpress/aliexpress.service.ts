@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
+import { ItemResponse } from './dto/itemResponse';
 
 @Injectable()
 export class AliExpressService {
@@ -19,84 +20,72 @@ export class AliExpressService {
   }
 
   public async getItemInfo(id: number) {
-    const { data } = await this.getData(`https://www.aliexpress.com/item/${id}.html`);
-    const { 
-      pageModule, 
-      titleModule, 
-      storeModule, 
-      imageModule, 
-      skuModule, 
-      priceModule
+    const { data } = await this.getData<ItemResponse>(`https://www.aliexpress.com/item/${id}.html`);
+    const {
+      pageModule,
+      titleModule,
+      storeModule,
+      imageModule,
+      skuModule
     } = data;
+
     return {
       url: pageModule.itemDetailURL,
       title: titleModule.subject,
       productId: pageModule.productId,
       orders: titleModule.tradeCount,
-      storeInfo: {
+      averageStar: titleModule.feedbackRating.averageStar,
+      totalStartCount: titleModule.feedbackRating.totalValidNum,
+      images: (imageModule && imageModule.imagePathList) || [],
+      smallImages: (imageModule && imageModule.summImagePathList) || [],
+      sku: skuModule.hasSkuProperty ? this.getItemVariants(skuModule) : [],
+      store: {
         url: storeModule.storeURL,
         name: storeModule.storeName,
         companyId: storeModule.companyId,
-        storeNumber: storeModule.storeNum,
+        storeId: storeModule.storeNum,
         followers: storeModule.followingNumber,
         ratingCount: storeModule.positiveNum,
         rating: storeModule.positiveRate,
         openingDate: storeModule.openTime,
-        openedYears: storeModule.openedYear
+        openedYears: storeModule.openedYear,
+        topRated: storeModule.topRatedSeller
       },
-      ratings: {
-        averageStar: titleModule.feedbackRating.averageStar,
-        totalStartCount: titleModule.feedbackRating.totalValidNum,
-      },
-      images: (imageModule && imageModule.imagePathList) || [],
-      smallImages: (imageModule && imageModule.summImagePathList) || [],
-      variants: this.getItemVariants(skuModule),
-      currency: data.webEnv.currency,
-      originalPrice: {
-        min: priceModule.minAmount.value,
-        max: priceModule.maxAmount.value,
-      },
-      salePrice: {
-        min: priceModule.minActivityAmount.value,
-        max: priceModule.maxActivityAmount.value,
-      },
-    };
-
-  }
-
-  private getItemVariants(data) {
-    const priceLists = data.skuPriceList || [];
-    const optionsLists = data.productSKUPropertyList || [];
-
-    const options = optionsLists.map(list => {
-      return {
-        id: list.skuPropertyId,
-        name: list.skuPropertyName,
-        values: list.skuPropertyValues.map(val => {
-          return {
-            id: val.propertyValueId,
-            name: val.propertyValueName,
-            displayName: val.propertyValueDisplayName,
-            image: val.skuPropertyImagePath
-          };
-        })
-      };
-    });
-
-    const lists = priceLists.map(list => {
-      return {
-        skuId: list.skuId,
-        optionValueIds: list.skuPropIds,
-        availableQuantity: list.skuVal.availQuantity,
-        originalPrice: list.skuVal.skuAmount.value,
-        salePrice: list.skuVal.skuActivityAmount.value
-      };
-    });
-
-    return {
-      options: options,
-      prices: lists
     };
   }
 
+  private getItemVariants(data): Array<Record<any, any>> {
+    const priceList = data.skuPriceList;
+    const propsList = this.getPropsList(data.productSKUPropertyList);
+
+    const variants = [];
+    for (const sku of priceList) {
+      if (!sku.skuVal.availQuantity){
+        continue;
+      }
+      variants.push({
+        skuId: sku.skuId,
+        price: sku.skuVal.skuActivityAmount.value,
+        currency: sku.skuVal.skuActivityAmount.currency,
+        props: this.getProps(sku.skuVal.skuPropIds, propsList)
+      });
+    }
+
+    return variants;
+  }
+
+  private getPropsList(data): Map<number, string> {
+    const props = new Map;
+    for (const prop of data) {
+      props.set(prop.propertyValueId, prop.propertyValueName);
+    }
+    return props;
+  }
+
+  private getProps(propIds: string, propsList: Map<number, string>) {
+    return propIds
+      .split(',')
+      .map(e => propsList.get(Number(e)))
+      .join(',');
+  }
 }

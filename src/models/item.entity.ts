@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Product } from './product.entity';
-import { Shop } from './shop.entity';
+import { Store } from './store.entity';
 
-@Entity('links')
-export class Link {
+@Entity('items')
+export class Item {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -34,7 +34,7 @@ export class Link {
   @JoinColumn({ name: "product_id" })
   product: Product;
 
-  @ManyToOne(() => Shop, shop => shop.id)
+  @ManyToOne(() => Store, shop => shop.id)
   @JoinColumn({ name: "shop_id" })
-  shop: Shop;
+  shop: Store;
 }

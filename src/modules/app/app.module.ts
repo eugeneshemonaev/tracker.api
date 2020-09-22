@@ -3,9 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BrandsModule } from '../brands/brands.module';
 import { CategoriesModule } from '../categories/categories.module';
 import { DiscountsModule } from '../discounts/discounts.module';
-import { LinksModule } from '../links/links.module';
+import { LinksModule } from '../items/links.module';
 import { ProductsModule } from '../products/products.module';
-import { ShopsModule } from '../shops/shops.module';
+import { StoresModule } from '../stores/shops.module';
 import { AliExpressModule } from '../aliexpress/aliexpress.module';
 
 @Module({
@@ -25,7 +25,7 @@ import { AliExpressModule } from '../aliexpress/aliexpress.module';
     DiscountsModule,
     LinksModule,
     ProductsModule,
-    ShopsModule,
+    StoresModule,
     AliExpressModule
   ],
 })

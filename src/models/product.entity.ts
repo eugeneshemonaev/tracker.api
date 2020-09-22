@@ -16,6 +16,14 @@ export class Product {
   @Column()
   image: string;
 
+  @Column({
+    name:'search_text'
+  })
+  searchText: string;
+
+  @Column()
+  price: number;
+
   @ManyToOne(() => Category, category => category.id)
   @JoinColumn({ name: "category_id" })
   category: Category;
