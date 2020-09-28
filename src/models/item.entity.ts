@@ -10,6 +10,18 @@ export class Item {
   @Column()
   url: string;
 
+  @Column()
+  title: string;
+
+  @Column()
+  productId: number;
+
+  @Column()
+  skuId: number;
+
+  @Column()
+  props: string;
+
   @Column({
     type: 'decimal',
     precision: 10,
@@ -24,17 +36,33 @@ export class Item {
   orders: number;
 
   @Column({
+    type: 'jsonb'
+  })
+  images: Array<string>;
+
+  @Column({
+    type: 'jsonb'
+  })
+  smallImages: Array<string>;
+
+  @Column({
     type: 'decimal',
     precision: 10,
     scale: 2
   })
   price: number;
 
-  @ManyToOne(() => Product, product => product.id)
+  @Column()
+  currency: string;
+
+  @ManyToOne(
+    () => Product,
+    product => product.id,
+    { nullable: true })
   @JoinColumn({ name: "product_id" })
   product: Product;
 
-  @ManyToOne(() => Store, shop => shop.id)
-  @JoinColumn({ name: "shop_id" })
-  shop: Store;
+  @ManyToOne(() => Store, store => store.id)
+  @JoinColumn({ name: "store_id" })
+  store: Store;
 }

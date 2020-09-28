@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
 import { ItemResponse } from './dto/itemResponse';
+import { ItemInfo } from './dto/itemInfo.dto';
+import { SkuModule } from './dto/skuModule.dto';
+import { ProductSKUProperty } from './dto/productSKUProperty.dto';
+import { SKUInfo } from './dto/skuInfo.dto';
 
 @Injectable()
 export class AliExpressService {
@@ -19,7 +23,7 @@ export class AliExpressService {
     return page.evaluate(() => runParams);
   }
 
-  public async getItemInfo(id: number) {
+  public async getItemInfo(id: number): Promise<ItemInfo> {
     const { data } = await this.getData<ItemResponse>(`https://www.aliexpress.com/item/${id}.html`);
     const {
       pageModule,
@@ -34,8 +38,8 @@ export class AliExpressService {
       title: titleModule.subject,
       productId: pageModule.productId,
       orders: titleModule.tradeCount,
-      averageStar: titleModule.feedbackRating.averageStar,
-      totalStartCount: titleModule.feedbackRating.totalValidNum,
+      rating: titleModule.feedbackRating.averageStar,
+      reviews: titleModule.feedbackRating.totalValidNum,
       images: (imageModule && imageModule.imagePathList) || [],
       smallImages: (imageModule && imageModule.summImagePathList) || [],
       sku: skuModule.hasSkuProperty ? this.getItemVariants(skuModule) : [],
@@ -46,15 +50,15 @@ export class AliExpressService {
         storeId: storeModule.storeNum,
         followers: storeModule.followingNumber,
         ratingCount: storeModule.positiveNum,
-        rating: storeModule.positiveRate,
-        openingDate: storeModule.openTime,
+        rating: Number(storeModule.positiveRate.split('%')[0]),
+        openingDate: new Date(storeModule.openTime),
         openedYears: storeModule.openedYear,
         topRated: storeModule.topRatedSeller
       },
     };
   }
 
-  private getItemVariants(data): Array<Record<any, any>> {
+  private getItemVariants(data: SkuModule): Array<SKUInfo> {
     const priceList = data.skuPriceList;
     const propsList = this.getPropsList(data.productSKUPropertyList);
 
@@ -67,22 +71,24 @@ export class AliExpressService {
         skuId: sku.skuId,
         price: sku.skuVal.skuActivityAmount.value,
         currency: sku.skuVal.skuActivityAmount.currency,
-        props: this.getProps(sku.skuVal.skuPropIds, propsList)
+        props: this.getProps(sku.skuPropIds, propsList)
       });
     }
 
     return variants;
   }
 
-  private getPropsList(data): Map<number, string> {
+  private getPropsList(data: Array<ProductSKUProperty>): Map<number, string> {
     const props = new Map;
-    for (const prop of data) {
-      props.set(prop.propertyValueId, prop.propertyValueName);
+    for (const values of data) {
+      for (const sku of values.skuPropertyValues) {
+        props.set(sku.propertyValueId, sku.propertyValueName);
+      }
     }
     return props;
   }
 
-  private getProps(propIds: string, propsList: Map<number, string>) {
+  private getProps(propIds: string, propsList: Map<number, string>): string {
     return propIds
       .split(',')
       .map(e => propsList.get(Number(e)))

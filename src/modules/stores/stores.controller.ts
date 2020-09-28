@@ -11,7 +11,7 @@ import { StoresService } from './stores.service';
     exclude: ['createManyBase']
   }
 })
-@Controller('shops')
+@Controller('stores')
 export class StoresController implements CrudController<Store>{
   constructor(public service: StoresService) {
   }
