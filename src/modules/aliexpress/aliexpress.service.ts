@@ -6,20 +6,14 @@ import { SkuModule } from './dto/skuModule.dto';
 import { ProductSKUProperty } from './dto/productSKUProperty.dto';
 import { SKUInfo } from './dto/skuInfo.dto';
 import moment from 'moment';
+import { SearchConditionsDto } from './dto/searchConditions.dto';
+import { ItemsResponse } from './dto/itemsResponse';
 
 @Injectable()
 export class AliExpressService {
   private page;
 
   constructor() {
-    // puppeteer.launch({headless: false})
-    //   .then(browser => browser.newPage())
-    //   .then(res => this.page = res)
-    //   .then(() => this.page.goto('https://www.aliexpress.com'))
-    //   .then(() => this.page.click('#switcher-info'))
-    //   .then(() => this.page.click('a[data-currency="USD"]'))
-    //   .then(() => this.page.click('a[data-locale="en_US"]'))
-    //   .then(() => this.page.click('.go-contiune-btn'))
     this.init()
       .catch(e => console.log(e));
   }
@@ -41,6 +35,45 @@ export class AliExpressService {
     await this.page.goto(url);
     // @ts-ignore
     return this.page.evaluate(() => runParams);
+  }
+
+  public async getItemsInfo(searchConditions: SearchConditionsDto): Promise<ItemInfo[]> {
+    const { searchText, minPrice, maxPrice, freeShipping, isFavorite, sortType } = searchConditions;
+    let conditions = '';
+    if(minPrice) {
+      conditions += `&minPrice=${minPrice}`;
+    }
+    if(maxPrice) {
+      conditions += `&minPrice=${maxPrice}`;
+    }
+    if(freeShipping) {
+      conditions += `&minPrice=${freeShipping}`;
+    }
+    if(isFavorite) {
+      conditions += `&minPrice=${isFavorite}`;
+    }
+    if(sortType) {
+      conditions += `&minPrice=${sortType}`;
+    }
+
+    const items: ItemInfo[] = [];
+    let currentPage = 1;
+    let totalPages = 0;
+    do {
+      const { data } = await this.getData<ItemsResponse>(
+        `https://www.aliexpress.com/wholesale?page=${currentPage}&SearchText=${searchText}${conditions}`
+      );
+
+      for (const item of data.items) {
+        const result = await this.getItemInfo(item.productId);
+        items.push(result);
+      }
+
+      totalPages = Math.ceil(data.resultCount / data.resultSizePerPage);
+      currentPage++;
+    } while(currentPage <= totalPages);
+
+    return items;
   }
 
   public async getItemInfo(id: number): Promise<ItemInfo> {
