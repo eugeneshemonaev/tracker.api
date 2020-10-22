@@ -6,7 +6,7 @@ export class StoreInfo {
   followers: number;
   ratingCount: number;
   rating: number;
-  openingDate: Date;
+  openingDate: string;
   openedYears: number;
   topRated: boolean;
 }

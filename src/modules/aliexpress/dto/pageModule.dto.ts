@@ -1,4 +1,4 @@
 export class PageModule {
-  itemDetailURL: string;
+  itemDetailUrl: string;
   productId: number;
 }

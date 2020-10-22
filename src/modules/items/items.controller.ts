@@ -18,6 +18,6 @@ export class ItemsController implements CrudController<Item>{
 
   @Post()
   async create(@Body() data):Promise<void> {
-    await this.service.create(data);
+    await this.service.save(data);
   }
 }

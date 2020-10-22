@@ -5,22 +5,42 @@ import { ItemInfo } from './dto/itemInfo.dto';
 import { SkuModule } from './dto/skuModule.dto';
 import { ProductSKUProperty } from './dto/productSKUProperty.dto';
 import { SKUInfo } from './dto/skuInfo.dto';
+import moment from 'moment';
 
 @Injectable()
 export class AliExpressService {
-  private browser;
+  private page;
 
   constructor() {
-    puppeteer.launch()
-      .then(res => this.browser = res)
+    // puppeteer.launch({headless: false})
+    //   .then(browser => browser.newPage())
+    //   .then(res => this.page = res)
+    //   .then(() => this.page.goto('https://www.aliexpress.com'))
+    //   .then(() => this.page.click('#switcher-info'))
+    //   .then(() => this.page.click('a[data-currency="USD"]'))
+    //   .then(() => this.page.click('a[data-locale="en_US"]'))
+    //   .then(() => this.page.click('.go-contiune-btn'))
+    this.init()
       .catch(e => console.log(e));
   }
 
+  private async init(): Promise<void> {
+    const browser = await puppeteer.launch({headless: false});
+    const page = await browser.newPage();
+    await page.goto('https://www.aliexpress.com',);
+    this.page = await browser.newPage();
+    await this.page.goto('https://www.aliexpress.com');
+    await this.page.click('#switcher-info');
+    await this.page.click('a[data-currency="USD"]');
+    await this.page.click('a[data-locale="en_US"]');
+    await this.page.click('.go-contiune-btn');
+    // await page.close();
+  }
+
   private async getData<T>(url: string): Promise<T> {
-    const page = await this.browser.newPage();
-    await page.goto(url);
+    await this.page.goto(url);
     // @ts-ignore
-    return page.evaluate(() => runParams);
+    return this.page.evaluate(() => runParams);
   }
 
   public async getItemInfo(id: number): Promise<ItemInfo> {
@@ -34,24 +54,24 @@ export class AliExpressService {
     } = data;
 
     return {
-      url: pageModule.itemDetailURL,
+      url: pageModule.itemDetailUrl,
       title: titleModule.subject,
       productId: pageModule.productId,
       orders: titleModule.tradeCount,
-      rating: titleModule.feedbackRating.averageStar,
+      rating: Number(titleModule.feedbackRating.averageStar),
       reviews: titleModule.feedbackRating.totalValidNum,
       images: (imageModule && imageModule.imagePathList) || [],
       smallImages: (imageModule && imageModule.summImagePathList) || [],
       sku: skuModule.hasSkuProperty ? this.getItemVariants(skuModule) : [],
       store: {
-        url: storeModule.storeURL,
+        url: `${'https:'+storeModule.storeURL}`,
         name: storeModule.storeName,
         companyId: storeModule.companyId,
         storeId: storeModule.storeNum,
         followers: storeModule.followingNumber,
         ratingCount: storeModule.positiveNum,
         rating: Number(storeModule.positiveRate.split('%')[0]),
-        openingDate: new Date(storeModule.openTime),
+        openingDate: moment(storeModule.openTime).format('YYYY-MM-DD'),
         openedYears: storeModule.openedYear,
         topRated: storeModule.topRatedSeller
       },
