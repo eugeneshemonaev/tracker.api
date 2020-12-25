@@ -1,9 +1,7 @@
+import { ListItem } from './listItem';
+
 export class ItemsResponse {
-  data: {
-    items: {
-      productId: number;
-    }[],
-    resultCount: number,
-    resultSizePerPage: number;
-  }
+  items: ListItem[];
+  resultCount: number;
+  resultSizePerPage: number;
 }

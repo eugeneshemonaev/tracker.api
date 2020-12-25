@@ -8,5 +8,8 @@ export class StoreModule {
   positiveRate: string;
   openTime: string;
   openedYear: number;
-  topRatedSeller: boolean
+  productId: number;
+  sellerAdminSeq: number;
+  detailPageUrl: string;
+  topRatedSeller: boolean;
 }

@@ -3,15 +3,16 @@ import { CategoryTypes } from '../common/enums/category-types.enum';
 
 @Entity('categories')
 export class Category {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column()
   name: string;
 
   @Column({
     type: 'enum',
-    enum: CategoryTypes
+    enum: CategoryTypes,
+    nullable: true
   })
   type: CategoryTypes;
 

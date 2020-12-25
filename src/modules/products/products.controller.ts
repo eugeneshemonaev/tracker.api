@@ -9,6 +9,12 @@ import { ProductsService } from './products.service';
   },
   routes: {
     exclude: ['createManyBase']
+  },
+  query: {
+    join: {
+      brand: {},
+      category: {}
+    }
   }
 })
 @Controller('products')

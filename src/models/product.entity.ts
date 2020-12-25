@@ -4,8 +4,8 @@ import { Brand } from './brand.entity';
 
 @Entity('products')
 export class Product {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column()
   name: string;
@@ -21,7 +21,11 @@ export class Product {
   })
   searchText: string;
 
-  @Column()
+  @Column({
+    type: 'decimal',
+    scale: 2,
+    precision: 10
+  })
   price: number;
 
   @ManyToOne(() => Category, category => category.id)

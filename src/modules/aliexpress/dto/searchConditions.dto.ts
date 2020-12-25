@@ -1,5 +1,6 @@
 import { SortTypes } from '../../../common/enums/sort-types.enum';
-import { IsEnum, IsIn, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class SearchConditionsDto {
   @IsString()
@@ -7,21 +8,23 @@ export class SearchConditionsDto {
 
   @IsInt()
   @IsOptional()
+  @Transform((val) => Number(val))
   minPrice?: number;
 
   @IsInt()
   @IsOptional()
+  @Transform((val) => Number(val))
   maxPrice?: number;
 
-  @IsString()
-  @IsIn(['y', 'n'])
+  @IsBoolean()
   @IsOptional()
-  freeShipping?: string;
+  @Transform((val) => val === 'true')
+  freeShipping?: boolean;
 
-  @IsString()
-  @IsIn(['y', 'n'])
+  @IsBoolean()
   @IsOptional()
-  isFavorite?: string;
+  @Transform((val) => val === 'true')
+  isFavorite?: boolean;
 
   @IsEnum(SortTypes)
   @IsOptional()

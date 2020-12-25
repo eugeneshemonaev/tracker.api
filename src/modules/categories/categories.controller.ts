@@ -11,7 +11,7 @@ import { CategoriesService } from './categories.service';
     exclude: ['createManyBase']
   }
 })
-@Controller('categorys')
+@Controller('categories')
 export class CategoriesController implements CrudController<Category>{
   constructor(public service: CategoriesService) {
   }

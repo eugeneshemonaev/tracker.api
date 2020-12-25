@@ -1,27 +1,55 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { DiscountTypes } from '../common/enums/discount-types.enum';
+import { Units } from '../common/enums/units.enum';
+import { AmountTypes } from '../common/enums/amount-types.enum';
 
 @Entity('discounts')
 export class Discount {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @Column()
+  discountId: string;
 
   @Column({
     type: 'enum',
-    enum: DiscountTypes
+    enum: DiscountTypes,
   })
   type: DiscountTypes;
 
   @Column({
-    type: 'jsonb'
+    nullable: true,
+    type: 'decimal',
+    scale: 2,
+    precision: 10,
   })
-  conditions: Record<string, unknown>;
+  from: number;
 
-  @Column()
+  @Column({
+    type: 'enum',
+    enum: Units,
+    nullable: true,
+  })
+  unit: Units;
+
+  @Column({
+    type: 'decimal',
+    scale: 2,
+    precision: 10,
+  })
   amount: number;
 
   @Column({
-    type: 'timestamptz'
+    name: 'amount_type',
+    type: 'enum',
+    enum: AmountTypes,
   })
-  valid_till: Date;
+  amountType: AmountTypes;
+
+  @Column({
+    name: 'valid_till',
+    type: 'timestamptz',
+    nullable: true,
+  })
+  validTill: Date;
 }

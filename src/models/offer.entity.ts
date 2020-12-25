@@ -2,10 +2,10 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 import { Product } from './product.entity';
 import { Store } from './store.entity';
 
-@Entity('items')
-export class Item {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+@Entity('offers')
+export class Offer {
+  @PrimaryGeneratedColumn('increment')
+  id: number;
 
   @Column()
   url: string;
